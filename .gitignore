@@ -1,0 +1,11 @@
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Skills write artifacts into the TARGET project, never here.
+/tmp/
+*.log
+scratch/
