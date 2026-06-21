@@ -10,6 +10,9 @@ Each top-level folder is one self-contained skill (`SKILL.md` + supporting `refe
 |---|---|
 | [`codebase-spec-test`](codebase-spec-test/) | Reverse-engineers an existing codebase into business-logic documentation, then derives a traceable test suite (cases + data) and runs it to green. Guided or fully autonomous. |
 | [`senior-review`](senior-review/) | Senior-engineer code review of a changeset (branch/PR/working diff) **before** it's pushed/merged: what changed, what's risky, multi-axis findings with severities — and posts the review to the PR. Works on any repo. |
+| [`context-bootstrap`](context-bootstrap/) | Generates/refreshes a high-signal `CLAUDE.md` (+ architecture map & glossary) for any repo so agents and humans onboard faster. Evidence-based, merges with existing context. |
+| [`pr-prep`](pr-prep/) | Turns a diff into a clean Conventional-Commits message + a high-quality PR description (fills your template), then optionally commits/pushes/opens the PR. Pairs with `senior-review`. |
+| [`api-contract-guard`](api-contract-guard/) | Detects drift between an API's server and its clients (renamed/removed fields, wrong method/path, type mismatches) — one repo or a separate FE+BE. REST/GraphQL/RPC; runs as a CI gate. |
 
 ## Install
 
