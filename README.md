@@ -13,6 +13,10 @@ Each top-level folder is one self-contained skill (`SKILL.md` + supporting `refe
 | [`context-bootstrap`](context-bootstrap/) | Generates/refreshes a high-signal `CLAUDE.md` (+ architecture map & glossary) for any repo so agents and humans onboard faster. Evidence-based, merges with existing context. |
 | [`pr-prep`](pr-prep/) | Turns a diff into a clean Conventional-Commits message + a high-quality PR description (fills your template), then optionally commits/pushes/opens the PR. Pairs with `senior-review`. |
 | [`api-contract-guard`](api-contract-guard/) | Detects drift between an API's server and its clients (renamed/removed fields, wrong method/path, type mismatches) — one repo or a separate FE+BE. REST/GraphQL/RPC; runs as a CI gate. |
+| [`feature-forge`](feature-forge/) | Turns a new requirement into a working full-stack feature: decompose → scaffold modules across backend/web/app (mirroring the repos' stacks) → MongoDB+MinIO on Docker → full CRUD with domain-noun names → review + tests. Orchestrates the other skills. |
+
+📖 **Full guide / Hướng dẫn đầy đủ:** [USAGE.md](USAGE.md) — what each skill does, how & when to use it, and how to combine/automate them (bilingual EN + VI).
+⚙️ **Auto PR review (no command):** drop [`examples/github/pr-review.yml`](examples/github/pr-review.yml) into a repo to run `api-contract-guard` + `senior-review` on every PR.
 
 ## Install
 
