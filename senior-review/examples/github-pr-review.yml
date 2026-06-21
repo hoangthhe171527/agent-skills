@@ -1,0 +1,65 @@
+# Auto senior-review on every PR — drop into a repo at .github/workflows/senior-review.yml
+#
+# Runs the `senior-review` skill on each opened/updated Pull Request and posts the
+# review as PR comments. No manual command needed.
+#
+# Prerequisites (one-time, per repo or org):
+#   1. Install the Claude GitHub App:  https://github.com/apps/claude
+#      (or run `/install-github-app` inside Claude Code — it wires the app + secret for you)
+#   2. Add repo secret  ANTHROPIC_API_KEY  (Settings → Secrets and variables → Actions)
+#
+# Docs: https://code.claude.com/docs/en/github-actions  ·  https://code.claude.com/docs/en/code-review
+
+name: Senior Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+# Least privilege: read the code, write PR review comments.
+permissions:
+  contents: read
+  pull-requests: write
+
+# One review per PR at a time; cancel stale runs on new pushes.
+concurrency:
+  group: senior-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  senior-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR (full history for an accurate diff vs base)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Make the reusable skill available to Claude Code in this run.
+      # (Alternatively: vendor agent-skills as a git submodule, or package it as a plugin.)
+      - name: Vendor the senior-review skill
+        run: |
+          git clone --depth 1 https://github.com/hoangthhe171527/agent-skills.git "$RUNNER_TEMP/agent-skills"
+          mkdir -p .claude/skills
+          cp -r "$RUNNER_TEMP/agent-skills/senior-review" .claude/skills/senior-review
+
+      - name: Review this PR
+        uses: anthropics/claude-code-action@v1
+        env:
+          GH_TOKEN: ${{ github.token }}          # lets the skill use `gh` to fetch the diff & post comments
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ github.token }}
+          prompt: "/senior-review pr ${{ github.event.pull_request.number }} post"
+          # Review, don't edit: allow read + shell (git/gh), withhold Write/Edit.
+          claude_args: >-
+            --model claude-sonnet-4-6
+            --max-turns 40
+            --allowedTools "Bash,Read,Grep,Glob,TodoWrite"
+
+# Notes:
+# - Cost: each PR runs an API job (tokens) + GitHub Actions minutes. Tune --max-turns / --model.
+#   Swap to `--model claude-opus-4-8` for deeper reviews on critical repos.
+# - To require a human trigger instead of every PR, gate the job with an `if:` on a label,
+#   e.g.  if: contains(github.event.pull_request.labels.*.name, 'needs-review')
+# - Bedrock/Vertex: replace anthropic_api_key with use_bedrock/use_vertex per the docs.
