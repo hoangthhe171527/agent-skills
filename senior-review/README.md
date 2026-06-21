@@ -38,6 +38,19 @@ Or just ask: *"review my changes before I push"*, *"senior review of PR 88 and c
 
 > Reviewing ≠ fixing. This skill suggests changes and comments; it does **not** edit the author's code or push unless you explicitly ask.
 
+## Automatic review on GitHub (no command)
+
+Run the review **automatically on every PR** via GitHub Actions + the official [`anthropics/claude-code-action@v1`](https://github.com/anthropics/claude-code-action) — no one types anything.
+
+**One-time setup**
+1. Install the Claude GitHub App: <https://github.com/apps/claude> (or run `/install-github-app` inside Claude Code, which wires the app + secret for you — needs repo-admin).
+2. Add the repo secret **`ANTHROPIC_API_KEY`** (Settings → Secrets and variables → Actions).
+3. Copy [`examples/github-pr-review.yml`](examples/github-pr-review.yml) into the repo at `.github/workflows/senior-review.yml`.
+
+That workflow triggers on `pull_request: [opened, synchronize, reopened]`, vendors this skill into `.claude/skills/`, and runs `/senior-review pr <n> post` so the review is posted as PR comments. Apply it to **any repo** by copying that one file.
+
+> Tip: to gate it (not every PR), add an `if:` on a label. For Bedrock/Vertex, swap `anthropic_api_key` for `use_bedrock`/`use_vertex` per the [docs](https://code.claude.com/docs/en/github-actions). Mind the API + Actions-minutes cost.
+
 ## Install
 Personal skill (all repos):
 ```bash
