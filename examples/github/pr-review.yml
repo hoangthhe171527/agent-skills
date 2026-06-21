@@ -1,0 +1,91 @@
+# Combined auto PR review — drop into a repo at .github/workflows/pr-review.yml
+#
+# On every PR, runs TWO skills with no manual command:
+#   1) api-contract-guard (diff)  → flags FE/BE/APP contract drift the PR introduces
+#   2) senior-review (post)       → posts a senior-engineer review on the PR
+#
+# One-time setup per repo:
+#   1. Install the Claude GitHub App: https://github.com/apps/claude   (or `/install-github-app`)
+#   2. Add repo secret  ANTHROPIC_API_KEY
+#   3. (cross-repo contract only) add secret SIBLING_REPO_TOKEN with read access to the API repo
+#
+# Docs: https://code.claude.com/docs/en/github-actions
+
+name: PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: pr-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR (full history for an accurate diff)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # OPTIONAL — cross-repo contract check (web/app PR vs the backend API repo).
+      # Uncomment + set SIBLING_REPO to compare against the provider repo.
+      # - name: Checkout sibling API repo
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: duongdoan/ad-canvas-api
+      #     token: ${{ secrets.SIBLING_REPO_TOKEN }}
+      #     path: .sibling-api
+      #     fetch-depth: 1
+
+      - name: Vendor skills (senior-review + api-contract-guard)
+        run: |
+          git clone --depth 1 https://github.com/hoangthhe171527/agent-skills.git "$RUNNER_TEMP/skills"
+          mkdir -p .claude/skills
+          cp -r "$RUNNER_TEMP/skills/senior-review" "$RUNNER_TEMP/skills/api-contract-guard" .claude/skills/
+
+      # 1) Contract drift — best-effort; if the repo has no API provider it reports that and moves on.
+      - name: API contract check
+        uses: anthropics/claude-code-action@v1
+        env:
+          GH_TOKEN: ${{ github.token }}
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ github.token }}
+          prompt: >-
+            /api-contract-guard diff — analyze the API contract drift this PR introduces.
+            If a sibling provider repo is checked out at ./.sibling-api, compare against it.
+            Post a concise comment on PR #${{ github.event.pull_request.number }} with the drift
+            findings; clearly flag any breaking (🔴/🟠) drift. If there is no API provider in
+            scope, post a one-line note and stop.
+          claude_args: >-
+            --model claude-sonnet-4-6
+            --max-turns 30
+            --allowedTools "Bash,Read,Grep,Glob,TodoWrite"
+
+      # 2) Senior review — always posts a review on the PR.
+      - name: Senior review
+        if: always()           # still review even if the contract step had nothing to do
+        uses: anthropics/claude-code-action@v1
+        env:
+          GH_TOKEN: ${{ github.token }}
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ github.token }}
+          prompt: "/senior-review pr ${{ github.event.pull_request.number }} post"
+          claude_args: >-
+            --model claude-sonnet-4-6
+            --max-turns 40
+            --allowedTools "Bash,Read,Grep,Glob,TodoWrite"
+
+# Make the contract check a HARD gate (fail the PR on breaking drift):
+#   In the api-contract-guard prompt, ask it to write "BREAKING" or "OK" to $GITHUB_WORKSPACE/.contract-status,
+#   then add a final step:
+#     - run: test "$(cat .contract-status 2>/dev/null)" != "BREAKING"
+# Cost: 2 Claude runs per PR + Actions minutes. Tune --max-turns / --model; gate behind a label if needed.
