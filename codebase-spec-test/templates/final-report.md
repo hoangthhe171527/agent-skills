@@ -20,6 +20,7 @@
 - Suite: **<n>** tests across <levels>. Result: **<pass>/<total>** · runtime **<t>**.
 - Run command: `<command>` <container variant>
 - Environment notes: <test DB, stubs, container exec>
+- **Review gate:** `senior-review` posted on PR #<n> (<link>) — verdict: <approve / approve-with-nits / request-changes>.
 
 ## 5. Suspected issues (as-built ≠ expected)
 | Rule | Observation | Pinned by | Severity (guess) |

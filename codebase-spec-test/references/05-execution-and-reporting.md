@@ -45,6 +45,17 @@ Unit and pure-logic flow tests need no services; **E2E / integration tests do** 
 6. **Run + tear down.** Use the project's E2E command (see `references/06-stack-playbooks.md`); on finish, reset state or tear down ephemeral services. E2E is slow and costly — cover the **critical** workflows, not every rule.
 7. **Make it reproducible.** Put the exact *bring-up → seed → run → teardown* commands in `test-plan.md` and the final report, and mark each flow's level (unit-flow vs E2E) in the matrix. A green E2E nobody else can reproduce isn't done.
 
+## Review gate — on push, before merge
+
+A green suite is necessary but not sufficient; the changeset still needs a second pair of eyes before it merges. When you push the docs+tests branch / open a PR, **compose the `senior-review` sibling skill as a standard step** — don't wait to be asked:
+
+- **Run it on the actual changeset** (the branch diff / PR), covering correctness, design, readability, tests, security, and backward-compat.
+- **Post the review where the merge happens.** `senior-review` can publish inline comments + a summary verdict straight onto the GitHub PR via `gh`/API, so the review is visible **on git**, not buried in chat. Posting to a PR is an outward-facing action — confirm before posting unless the user already authorized it.
+- **Act on the verdict.** `request-changes` → resolve blocking findings (fix the test, or the code only if the user asked to fix bugs — otherwise keep characterization + log it), re-run the suite, re-review. Don't merge on red.
+- **Record it.** Link the posted review (PR URL) in the final report so coverage *and* review status are traceable.
+
+This pairs the two skills: `codebase-spec-test` produces the documented, tested changeset; `senior-review` gates it before merge.
+
 ## Phase 6 — Final report
 
 Write `docs/business-logic/final-report.md` from `templates/final-report.md`. It must let a newcomer trust and run everything:
