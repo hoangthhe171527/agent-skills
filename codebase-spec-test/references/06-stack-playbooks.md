@@ -17,7 +17,7 @@ Pick the playbook matching the detected stack. Always prefer the project's **own
 
 ## Front-end (React/Vue/Svelte components)
 - **Run:** Vitest/Jest + Testing Library (`@testing-library/{react,vue,svelte}`). Component logic & state, not pixel design.
-- **E2E:** Playwright/Cypress if present (`npx playwright test`). Use for documented user workflows.
+- **E2E:** Playwright/Cypress for documented user workflows — see **End-to-end / integration harness** below (the real stack must be up first).
 
 ## Python (Pytest · Django · unittest)
 - **Run:** `pytest -q` · `pytest path -k name` · `python -m pytest`. Django: `pytest` (pytest-django) or `python manage.py test`.
@@ -51,3 +51,11 @@ Pick the playbook matching the detected stack. Always prefer the project's **own
 If env points at service hostnames (`mongodb`, `postgres`, `redis`) that don't resolve from the host:
 - Inspect `docker-compose*.yml` for the app service name; run tests/seeds inside it: `docker compose exec app <test-cmd>` or `docker exec <container> <test-cmd>`.
 - Use the container's network for the test DB; keep a separate test database to avoid touching dev data.
+
+## End-to-end / integration harness (real stack required)
+Cross-boundary flow tests (UI ↔ API ↔ DB) need the whole stack up — see the discipline in `references/05-execution-and-reporting.md`. Quick reference:
+- **Bring up & verify:** `docker compose -f docker-compose*.yml up -d` then check `docker ps` healthchecks; **reuse already-running containers** instead of restarting.
+- **Web E2E:** Playwright (`npm i -D @playwright/test && npx playwright install`; then `npx playwright test`) or Cypress (`npx cypress run`). Set `baseURL` to the running app; persist auth via `storageState` / a seeded token rather than logging in each test.
+- **Backend feature/integration (in container):** `docker compose exec app php artisan test --testsuite=Feature` (Laravel) · `docker compose exec app <runner>` for other stacks.
+- **Seed/reset test data (in container):** `docker compose exec app <seeder>`; use a dedicated test DB/namespace **and** a test object-storage bucket (e.g. MinIO `*-test`), never dev/prod.
+- **Teardown:** reset state, or `docker compose down` for ephemeral environments. Record the full bring-up→seed→run→teardown sequence in `test-plan.md`.

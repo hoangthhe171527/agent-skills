@@ -33,6 +33,18 @@ Never weaken an assertion just to get green (no deleting checks, no `assertTrue(
 - Run via the project's canonical command (CI is the reference). If DB/cache/queue live only in containers, exec into them.
 - Use a dedicated test database/profile; never run destructive tests against dev/prod data.
 
+### Running E2E / integration tests (real stack)
+
+Unit and pure-logic flow tests need no services; **E2E / integration tests do** — they cross the UI ↔ API ↔ datastore boundary, so the real stack must be **up and healthy before a single test runs**. Reserve this level for documented user **workflows** (`WF-###`) that pure-logic tests can't reach; keep per-rule `BR` checks at the unit level. The rules:
+
+1. **Bring the stack up first — reuse what's already running.** Detect the run topology (`docker-compose*.yml`, `Procfile`, dev scripts). Start services with the project's own command (e.g. `docker compose -f docker-compose.dev.yml up -d`), then **confirm health** (`docker ps` healthchecks + a probe request) before running. If containers are already up, reuse them — don't restart blindly.
+2. **Dedicated test data & datastore — never dev/prod.** Point E2E at an isolated test database/namespace and test bucket (e.g. a Mongo test DB, a `*-test` S3/MinIO bucket). Seed deterministic fixtures through the app's own seeders/factories (often `docker compose exec app <seed-cmd>`); reset/clean between runs.
+3. **Bootstrap auth/session programmatically.** A journey needs a logged-in state: seed a user + obtain a token / set Playwright `storageState`, instead of driving the login form in every test. Record the (fake) test account in `test-plan.md` — never real creds.
+4. **Wire base URLs via env.** Point the runner at the running app (`baseURL`) and the app at the test API. Secrets stay in env/test config, never in fixtures.
+5. **Stability — wait on signals, not sleeps.** Await network-idle / a visible role / a 2xx response; allow retries only at the harness level; freeze/inject the clock where the app supports it. A flaky E2E is worse than none.
+6. **Run + tear down.** Use the project's E2E command (see `references/06-stack-playbooks.md`); on finish, reset state or tear down ephemeral services. E2E is slow and costly — cover the **critical** workflows, not every rule.
+7. **Make it reproducible.** Put the exact *bring-up → seed → run → teardown* commands in `test-plan.md` and the final report, and mark each flow's level (unit-flow vs E2E) in the matrix. A green E2E nobody else can reproduce isn't done.
+
 ## Phase 6 — Final report
 
 Write `docs/business-logic/final-report.md` from `templates/final-report.md`. It must let a newcomer trust and run everything:

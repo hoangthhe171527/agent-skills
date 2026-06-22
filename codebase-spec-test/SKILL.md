@@ -53,6 +53,7 @@ Design minimal, deterministic fixtures/factories/seeds reusing the project's exi
 
 ### Phase 5 — Implementation & execution → read `references/05-execution-and-reporting.md` (+ `references/06-stack-playbooks.md`)
 Implement the cases in the project's framework, then **run them**. Iterate to green: a failing test means either the test misread the code (fix the test) or you found a real discrepancy (record it, keep the test asserting current behaviour). Use the stack playbook for exact run commands.
+- **E2E/integration flows** need the real stack up and healthy first (often `docker compose up -d` + healthcheck), the runner pointed at it (`baseURL`), an isolated test DB/bucket seeded, and auth bootstrapped — follow the "Running E2E / integration tests" rules in `references/05-execution-and-reporting.md`. Reserve E2E for `WF-###` user journeys; keep `BR` checks at unit level.
 
 ### Phase 6 — Reporting → read `references/05-execution-and-reporting.md` (+ `templates/final-report.md`)
 Write the final report: what was documented, coverage of rules by tests (from the matrix), how to run the suite, suspected issues/open questions, and recommended next steps.
