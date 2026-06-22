@@ -46,6 +46,7 @@ Write the human-readable doc set into `docs/business-logic/` of the target proje
 
 ### Phase 3 — Test design → read `references/03-test-design.md` (+ `templates/test-plan.md`, `templates/traceability-matrix.md`)
 Derive test cases from the documented rules (happy path, boundaries, negative, state transitions, permission matrix, idempotency, concurrency where relevant). Produce a **test plan** and a **traceability matrix** (`BR → TC → status`). Aim for every rule to have ≥1 case; flag rules that are impractical to test and why.
+- **Flow/scenario tests (required).** Unit tests pin each rule in isolation but do **not** prove the parts compose. For every documented workflow (`WF-###`) design at least one **flow test** that chains the steps in sequence (output of one step is the input to the next), plus a representative negative flow. A `WF` whose parts are all unit-tested is **not** covered until a flow test exercises the sequence end-to-end.
 
 ### Phase 4 — Test data → read `references/04-test-data.md`
 Design minimal, deterministic fixtures/factories/seeds reusing the project's existing patterns. Cover the boundary/edge values the cases need. Keep data isolated and reproducible.
@@ -60,6 +61,7 @@ Write the final report: what was documented, coverage of rules by tests (from th
 
 - Doc set exists under `docs/business-logic/` and every rule has an ID + code evidence.
 - Traceability matrix is complete: each `BR/WF/INV` maps to ≥1 `TC` (or an explicit "not tested — reason").
+- **Every documented workflow (`WF-###`) has ≥1 flow/scenario test** that runs its steps in sequence — not only isolated unit tests of its parts.
 - The test suite **runs** and is green (or red only on documented, intentionally-pinned suspected bugs).
 - A final report explains the suite, how to run it, and open questions.
 - This skill's own files are unchanged; all artifacts are in the target project.

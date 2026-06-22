@@ -21,6 +21,18 @@ For every `BR/INV/WF`, generate the applicable case types:
 
 Prefer **one assertion target per case**; name cases so the rule is obvious.
 
+## Flow / scenario tests (compose the units) — required
+
+Unit tests pin each rule in isolation; they do **not** prove the functions compose. For **every documented workflow (`WF-###`)** add at least one **flow test** that runs the steps in sequence and asserts the end-to-end result:
+
+- **Chain, don't isolate.** Start from a realistic initial state and walk the whole path, feeding each step's output into the next — e.g. record installment `S1→S2→S3` and assert the running total converges to the contract value; or classify a contract's end-date → expiry *kind* → list-grouping → badge/action label and assert they all agree.
+- **Output→input fidelity is the point.** The unique value of a flow test is catching when one step emits a shape/value the next step can't consume — a gap unit tests never see.
+- **Include a negative flow.** At least one scenario rejected at the *right* step (e.g. paying an already-settled milestone throws the overpay error; a disallowed state transition is refused mid-sequence).
+- **One flow per workflow, minimum.** Map each `WF-###` to ≥1 flow test in the matrix. A workflow whose parts are all unit-tested is **not** covered until a flow test chains them.
+- **Keep them legible.** Put flow tests in a dedicated file/group (e.g. `**/workflows.*`, `*_flow_test.*`, a `Scenario:`/`describe("WF-…")` block) so they read as scenarios, separate from per-rule unit tests.
+
+Choose the cheapest level that still exercises the real composition: for pure functions a flow is just chained calls; for stateful workflows it may need an integration/feature test that walks the entrypoints.
+
 ## Naming & IDs
 
 - Test case ID `TC-###`, mapped to its rule(s). Test *method* names should read as the behaviour: `test_reservation_expires_after_hold_window` / `it("denies convert on expired hold")`.
@@ -49,9 +61,11 @@ A table linking rules → tests → status. It is how "done" is measured and how
 
 Rules with no practical test must say **why** (e.g. external-only, no code path, requires third-party sandbox). Every other rule needs ≥1 case.
 
+Add a short **flow coverage** block under the matrix listing each `WF-###` and its flow test(s) — a workflow row is only "covered" when a flow test chains its steps, not merely when its component `BR`s are unit-tested.
+
 ## Output of this phase
 
-- `docs/business-logic/test-plan.md` — strategy, levels, environment, run command, fixtures needed.
-- `docs/business-logic/traceability-matrix.md` — the table above, kept updated through Phase 5.
+- `docs/business-logic/test-plan.md` — strategy, levels, environment, run command, fixtures needed, **plus a Flow/scenario tests section** (one row per `WF-###`).
+- `docs/business-logic/traceability-matrix.md` — the table above **plus the flow-coverage block**, kept updated through Phase 5.
 
 Proceed to Phase 4 (`references/04-test-data.md`).

@@ -13,6 +13,7 @@
 
 ## 3. Test coverage of rules
 - From [traceability matrix](traceability-matrix.md): **<n>/<N>** rules have ≥1 passing test (**<%>**).
+- **Workflows:** **<n>/<N>** `WF-###` have ≥1 flow/scenario test that chains their steps end-to-end.
 - Not tested (with reasons): <list / link>.
 
 ## 4. Test results
