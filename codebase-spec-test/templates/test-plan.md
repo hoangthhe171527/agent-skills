@@ -16,6 +16,13 @@
 | TC-002 | BR-001 | unit | <boundary: max+1> | <input> | <error/code> |
 | TC-010 | WF-001 | feature | <DRAFT→ACTIVE> | <state> | <result + side effect> |
 
+## Flow / scenario tests (summary)
+> One scenario per documented workflow (`WF-###`): chain the steps (output→input) and assert the end-to-end result. Include a negative flow. **Detailed per-flow specs live in [flow-test-spec.md](flow-test-spec.md)**; this is the at-a-glance summary.
+
+| Flow | Workflow | Steps (sequence) | Key assertions | Negative flow |
+|---|---|---|---|---|
+| FLOW-001 | WF-001 | <step1 → step2 → step3> | <end state + invariants hold> | <rejected at step N with error> |
+
 ## Test data
 - **Factories / builders:** <existing + new, location>
 - **Boundary datasets:** <parameterized tables>

@@ -44,23 +44,30 @@ Systematically harvest the *as-built* rules within scope: domain entities & inva
 Write the human-readable doc set into `docs/business-logic/` of the target project, using the templates: overview, domain model, business rules, workflows, interfaces/API, glossary. Default the prose language to the codebase/user's language.
 - **Checkpoint** (guided): get sign-off on the docs before building tests. `docs-only` mode stops here.
 
-### Phase 3 — Test design → read `references/03-test-design.md` (+ `templates/test-plan.md`, `templates/traceability-matrix.md`)
+### Phase 3 — Test design → read `references/03-test-design.md` (+ `templates/test-plan.md`, `templates/traceability-matrix.md`, `templates/flow-test-spec.md`)
 Derive test cases from the documented rules (happy path, boundaries, negative, state transitions, permission matrix, idempotency, concurrency where relevant). Produce a **test plan** and a **traceability matrix** (`BR → TC → status`). Aim for every rule to have ≥1 case; flag rules that are impractical to test and why.
+- **Flow/scenario tests (required).** Unit tests pin each rule in isolation but do **not** prove the parts compose. For every documented workflow (`WF-###`) design at least one **flow test** that chains the steps in sequence (output of one step is the input to the next), plus a representative negative flow. A `WF` whose parts are all unit-tested is **not** covered until a flow test exercises the sequence end-to-end. Capture each in a **flow test spec** (`templates/flow-test-spec.md` → `docs/business-logic/flow-test-spec.md`): preconditions, the step→output→next-input chain, end-state assertions, and negative variants.
 
 ### Phase 4 — Test data → read `references/04-test-data.md`
 Design minimal, deterministic fixtures/factories/seeds reusing the project's existing patterns. Cover the boundary/edge values the cases need. Keep data isolated and reproducible.
 
 ### Phase 5 — Implementation & execution → read `references/05-execution-and-reporting.md` (+ `references/06-stack-playbooks.md`)
 Implement the cases in the project's framework, then **run them**. Iterate to green: a failing test means either the test misread the code (fix the test) or you found a real discrepancy (record it, keep the test asserting current behaviour). Use the stack playbook for exact run commands.
+- **E2E/integration flows** need the real stack up and healthy first (often `docker compose up -d` + healthcheck), the runner pointed at it (`baseURL`), an isolated test DB/bucket seeded, and auth bootstrapped — follow the "Running E2E / integration tests" rules in `references/05-execution-and-reporting.md`. Reserve E2E for `WF-###` user journeys; keep `BR` checks at unit level.
 
 ### Phase 6 — Reporting → read `references/05-execution-and-reporting.md` (+ `templates/final-report.md`)
 Write the final report: what was documented, coverage of rules by tests (from the matrix), how to run the suite, suspected issues/open questions, and recommended next steps.
+
+### Review gate — on push, before merge
+When the docs+tests are pushed for review, **automatically compose the `senior-review` sibling skill** on the changeset before merge — it reviews correctness/design/tests and **posts the review onto the GitHub PR** (inline comments + summary, via `gh`/API) so it's visible on git. The suite must stay green; resolve blocking findings (fix the test, or the code only if the user asked) and re-review. Don't merge on a red/request-changes review. Link the posted review in the final report.
 
 ## Definition of done
 
 - Doc set exists under `docs/business-logic/` and every rule has an ID + code evidence.
 - Traceability matrix is complete: each `BR/WF/INV` maps to ≥1 `TC` (or an explicit "not tested — reason").
+- **Every documented workflow (`WF-###`) has ≥1 flow/scenario test** that runs its steps in sequence — not only isolated unit tests of its parts.
 - The test suite **runs** and is green (or red only on documented, intentionally-pinned suspected bugs).
+- If the changes are pushed for review, the `senior-review` skill has run on the changeset and **posted its review to the PR** before merge.
 - A final report explains the suite, how to run it, and open questions.
 - This skill's own files are unchanged; all artifacts are in the target project.
 

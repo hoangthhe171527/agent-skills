@@ -13,12 +13,14 @@
 
 ## 3. Test coverage of rules
 - From [traceability matrix](traceability-matrix.md): **<n>/<N>** rules have ≥1 passing test (**<%>**).
+- **Workflows:** **<n>/<N>** `WF-###` have ≥1 flow/scenario test that chains their steps end-to-end.
 - Not tested (with reasons): <list / link>.
 
 ## 4. Test results
 - Suite: **<n>** tests across <levels>. Result: **<pass>/<total>** · runtime **<t>**.
 - Run command: `<command>` <container variant>
 - Environment notes: <test DB, stubs, container exec>
+- **Review gate:** `senior-review` posted on PR #<n> (<link>) — verdict: <approve / approve-with-nits / request-changes>.
 
 ## 5. Suspected issues (as-built ≠ expected)
 | Rule | Observation | Pinned by | Severity (guess) |

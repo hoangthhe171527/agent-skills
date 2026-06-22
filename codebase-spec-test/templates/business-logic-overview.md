@@ -26,7 +26,7 @@
 
 ## Document index
 - [01 Domain model](01-domain-model.md) · [02 Business rules](02-business-rules.md) · [03 Workflows](03-workflows.md) · [04 Interfaces](04-interfaces.md) · [05 Glossary](05-glossary.md)
-- [Test plan](test-plan.md) · [Traceability matrix](traceability-matrix.md) · [Final report](final-report.md)
+- [Test plan](test-plan.md) · [Flow test spec](flow-test-spec.md) · [Traceability matrix](traceability-matrix.md) · [Final report](final-report.md)
 
 ## Open questions (❓ assumptions to confirm)
 - <ID> — <question> — *needs owner/product input*
