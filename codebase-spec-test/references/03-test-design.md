@@ -33,6 +33,8 @@ Unit tests pin each rule in isolation; they do **not** prove the functions compo
 
 Choose the cheapest level that still exercises the real composition: for pure functions a flow is just chained calls; for stateful workflows it may need an integration/feature test that walks the entrypoints.
 
+**Spec each flow before implementing it.** Write `docs/business-logic/flow-test-spec.md` from `templates/flow-test-spec.md` — one `FLOW-###` per `WF-###`, with preconditions, the numbered step→output→next-input chain, end-state assertions, and negative/alternate variants. This is the design that Phase 5 implements and the matrix's flow-coverage block tracks. Every `WF-###` in `03-workflows.md` gets a spec or an explicit "no flow test — reason".
+
 ## Naming & IDs
 
 - Test case ID `TC-###`, mapped to its rule(s). Test *method* names should read as the behaviour: `test_reservation_expires_after_hold_window` / `it("denies convert on expired hold")`.
@@ -65,7 +67,8 @@ Add a short **flow coverage** block under the matrix listing each `WF-###` and i
 
 ## Output of this phase
 
-- `docs/business-logic/test-plan.md` — strategy, levels, environment, run command, fixtures needed, **plus a Flow/scenario tests section** (one row per `WF-###`).
-- `docs/business-logic/traceability-matrix.md` — the table above **plus the flow-coverage block**, kept updated through Phase 5.
+- `docs/business-logic/test-plan.md` — strategy, levels, environment, run command, fixtures needed, **plus a Flow/scenario tests summary** (one row per `WF-###`).
+- `docs/business-logic/flow-test-spec.md` — the detailed per-workflow flow specs (`templates/flow-test-spec.md`): steps, chained data, end-state assertions, negative variants.
+- `docs/business-logic/traceability-matrix.md` — the rule table **plus the flow-coverage block**, kept updated through Phase 5.
 
 Proceed to Phase 4 (`references/04-test-data.md`).

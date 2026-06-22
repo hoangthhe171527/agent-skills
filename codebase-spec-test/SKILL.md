@@ -44,9 +44,9 @@ Systematically harvest the *as-built* rules within scope: domain entities & inva
 Write the human-readable doc set into `docs/business-logic/` of the target project, using the templates: overview, domain model, business rules, workflows, interfaces/API, glossary. Default the prose language to the codebase/user's language.
 - **Checkpoint** (guided): get sign-off on the docs before building tests. `docs-only` mode stops here.
 
-### Phase 3 — Test design → read `references/03-test-design.md` (+ `templates/test-plan.md`, `templates/traceability-matrix.md`)
+### Phase 3 — Test design → read `references/03-test-design.md` (+ `templates/test-plan.md`, `templates/traceability-matrix.md`, `templates/flow-test-spec.md`)
 Derive test cases from the documented rules (happy path, boundaries, negative, state transitions, permission matrix, idempotency, concurrency where relevant). Produce a **test plan** and a **traceability matrix** (`BR → TC → status`). Aim for every rule to have ≥1 case; flag rules that are impractical to test and why.
-- **Flow/scenario tests (required).** Unit tests pin each rule in isolation but do **not** prove the parts compose. For every documented workflow (`WF-###`) design at least one **flow test** that chains the steps in sequence (output of one step is the input to the next), plus a representative negative flow. A `WF` whose parts are all unit-tested is **not** covered until a flow test exercises the sequence end-to-end.
+- **Flow/scenario tests (required).** Unit tests pin each rule in isolation but do **not** prove the parts compose. For every documented workflow (`WF-###`) design at least one **flow test** that chains the steps in sequence (output of one step is the input to the next), plus a representative negative flow. A `WF` whose parts are all unit-tested is **not** covered until a flow test exercises the sequence end-to-end. Capture each in a **flow test spec** (`templates/flow-test-spec.md` → `docs/business-logic/flow-test-spec.md`): preconditions, the step→output→next-input chain, end-state assertions, and negative variants.
 
 ### Phase 4 — Test data → read `references/04-test-data.md`
 Design minimal, deterministic fixtures/factories/seeds reusing the project's existing patterns. Cover the boundary/edge values the cases need. Keep data isolated and reproducible.
